@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incident Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   RESET & VARIABLES
+═══════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0f1117;
+  --surface:   #161b27;
+  --surface2:  #1d2436;
+  --border:    #252d42;
+  --border2:   #2e3a54;
+  --accent:    #3b82f6;
+  --accent-h:  #2563eb;
+  --orange:    #f97316;
+  --green:     #22c55e;
+  --red:       #ef4444;
+  --yellow:    #eab308;
+  --cyan:      #06b6d4;
+  --text:      #e2e8f0;
+  --text2:     #94a3b8;
+  --text3:     #4a5568;
+  --sidebar:   200px;
+  --radius:    10px;
+  --shadow:    0 4px 24px rgba(0,0,0,.4);
+}
+
+html, body { height: 100%; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+/* ═══════════════════════════════════════════════════════
+   LOGIN PAGE
+═══════════════════════════════════════════════════════ */
+#login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+#login-page::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(59,130,246,.12) 0%, transparent 70%);
+  top: -100px; right: -100px;
+  pointer-events: none;
+}
+
+#login-page::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(249,115,22,.08) 0%, transparent 70%);
+  bottom: -50px; left: -50px;
+  pointer-events: none;
+}
+
+.login-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 44px;
+  width: 420px;
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--shadow);
+}
+
+.login-logo {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+
+.login-logo span { color: var(--orange); }
+.login-sub { color: var(--text2); font-size: 13px; margin-bottom: 32px; }
+
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+
+.form-control {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.form-control:focus { border-color: var(--accent); }
+.form-control::placeholder { color: var(--text3); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 20px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+  text-decoration: none;
+}
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-h); }
+.btn-orange  { background: var(--orange); color: #fff; }
+.btn-orange:hover  { background: #ea6c0a; }
+.btn-ghost   { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+.btn-ghost:hover   { border-color: var(--border2); color: var(--text); }
+.btn-danger  { background: transparent; border: 1px solid rgba(239,68,68,.4); color: var(--red); }
+.btn-danger:hover  { background: rgba(239,68,68,.1); }
+.btn-success { background: var(--green); color: #fff; }
+.btn-sm      { padding: 6px 12px; font-size: 12px; }
+.btn-full    { width: 100%; }
+
+.login-hint {
+  margin-top: 20px;
+  padding: 12px 14px;
+  background: rgba(59,130,246,.08);
+  border: 1px solid rgba(59,130,246,.2);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text2);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════
+   APP LAYOUT
+═══════════════════════════════════════════════════════ */
+#app { display: none; height: 100vh; overflow: hidden; }
+#app.visible { display: flex; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 22px 16px 16px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sidebar-logo span { color: var(--orange); }
+.sidebar-logo small { display: block; font-size: 10px; font-weight: 400; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+.nav-section { padding: 14px 12px 4px; font-size: 9px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  margin: 1px 6px;
+  border-radius: 8px;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .12s;
+  user-select: none;
+  position: relative;
+}
+
+.nav-link:hover { background: var(--surface2); color: var(--text); }
+.nav-link.active { background: rgba(59,130,246,.12); color: var(--accent); }
+.nav-link .icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  border-radius: 10px;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.admin-pill {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--orange));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+
+.admin-info .name { font-size: 12px; font-weight: 600; }
+.admin-info .role { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.topbar-left h2 { font-size: 16px; font-weight: 700; }
+.topbar-left p  { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+
+.search-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  width: 200px;
+  outline: none;
+}
+
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text3); }
+
+.content { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* ═══════════════════════════════════════════════════════
+   PAGES
+═══════════════════════════════════════════════════════ */
+.page { display: none; animation: fadeIn .2s ease; }
+.page.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ═══ STAT CARDS ═══ */
+.stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 24px; }
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.stat-card.blue::after   { background: var(--accent); }
+.stat-card.orange::after { background: var(--orange); }
+.stat-card.cyan::after   { background: var(--cyan); }
+.stat-card.green::after  { background: var(--green); }
+.stat-card.red::after    { background: var(--red); }
+.stat-card.gray::after   { background: var(--text3); }
+
+.stat-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1.2px; font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
+.stat-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.stat-sub   { font-size: 11px; color: var(--text3); }
+
+/* ═══ CARDS ═══ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title { font-size: 14px; font-weight: 700; }
+.card-body  { padding: 20px; }
+
+/* ═══ TABLE ═══ */
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text3);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--surface2); }
+tbody tr { transition: background .1s; cursor: pointer; }
+
+.td-id  { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); }
+.td-title { font-weight: 600; font-size: 13px; }
+.td-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.td-muted { font-size: 12px; color: var(--text2); }
+
+/* ═══ BADGES ═══ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+
+.badge-pending    { background: rgba(234,179,8,.12);   color: var(--yellow); }
+.badge-verified   { background: rgba(59,130,246,.12);  color: var(--accent); }
+.badge-inprogress { background: rgba(6,182,212,.12);   color: var(--cyan); }
+.badge-resolved   { background: rgba(34,197,94,.12);   color: var(--green); }
+.badge-false      { background: rgba(239,68,68,.12);   color: var(--red); }
+
+.badge-critical { background: rgba(239,68,68,.12);   color: var(--red); }
+.badge-high     { background: rgba(249,115,22,.12);  color: var(--orange); }
+.badge-medium   { background: rgba(59,130,246,.12);  color: var(--accent); }
+.badge-low      { background: rgba(100,116,139,.12); color: var(--text2); }
+
+.dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: currentColor; }
+
+/* ═══ FILTER BAR ═══ */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  font-family: inherit;
+  transition: all .12s;
+}
+
+.filter-pill.active, .filter-pill:hover { border-color: var(--accent); color: var(--accent); background: rgba(59,130,246,.08); }
+.filter-pill.all.active { border-color: var(--text2); color: var(--text); background: var(--surface2); }
+
+.filter-sep { flex: 1; }
+
+.filter-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  width: 180px;
+}
+
+.filter-input:focus { border-color: var(--accent); }
+
+/* ═══ MAP PAGE ═══ */
+.map-layout { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+
+.map-canvas {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  position: relative;
+  min-height: 460px;
+  overflow: hidden;
+}
+
+.map-grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 50px 50px;
+  opacity: .4;
+}
+
+.map-title {
+  position: absolute;
+  top: 16px; left: 16px;
+  background: rgba(15,17,23,.85);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  z-index: 3;
+}
+
+.map-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+  z-index: 2;
+  transition: transform .15s;
+}
+
+.map-pin:hover { transform: translate(-50%, -110%) scale(1.15); z-index: 5; }
+
+.pin-circle {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.4);
+}
+
+.pin-circle.critical { background: var(--red);    box-shadow: 0 0 10px var(--red); }
+.pin-circle.high     { background: var(--orange);  box-shadow: 0 0 8px var(--orange); }
+.pin-circle.medium   { background: var(--accent);  }
+.pin-circle.low      { background: var(--text3);   }
+
+.pin-tooltip {
+  position: absolute;
+  bottom: 18px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  white-space: nowrap;
+  font-size: 11px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  z-index: 10;
+  box-shadow: var(--shadow);
+}
+
+.map-pin:hover .pin-tooltip { opacity: 1; }
+
+.map-legend {
+  position: absolute;
+  bottom: 16px; left: 16px;
+  background: rgba(15,17,23,.85);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  backdrop-filter: blur(4px);
+  z-index: 3;
+}
+
+.legend-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text2); margin-bottom: 5px; }
+.legend-row:last-child { margin-bottom: 0; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ═══ USERS ═══ */
+.user-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+
+.user-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  transition: border-color .15s;
+}
+
+.user-card:hover { border-color: var(--border2); }
+.user-card.flagged { border-color: rgba(239,68,68,.35); }
+
+.user-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+
+.user-avatar {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: #fff;
+  flex-shrink: 0;
+}
+
+.user-name  { font-size: 13px; font-weight: 700; }
+.user-email { font-size: 11px; color: var(--text2); }
+.user-row   { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.user-row:last-child { border-bottom: none; }
+.user-row .lbl { color: var(--text3); }
+.user-row .val { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.flagged-tag { background: rgba(239,68,68,.12); color: var(--red); font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 7px; border-radius: 8px; margin-left: 6px; }
+
+/* ═══ TIMELINE ═══ */
+.timeline { padding: 4px 0; }
+
+.tl-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+
+.tl-item:hover { background: var(--surface2); }
+.tl-item:last-child { border-bottom: none; }
+
+.tl-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tl-icon.status   { background: rgba(59,130,246,.12); }
+.tl-icon.priority { background: rgba(249,115,22,.12); }
+.tl-icon.note     { background: rgba(34,197,94,.12); }
+.tl-icon.verified { background: rgba(6,182,212,.12); }
+.tl-icon.false    { background: rgba(239,68,68,.12); }
+
+.tl-body { flex: 1; }
+.tl-action { font-size: 13px; font-weight: 500; }
+.tl-meta   { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 3px; }
+.tl-note   { font-size: 12px; color: var(--text2); margin-top: 5px; font-style: italic; }
+
+.arrow { color: var(--accent); margin: 0 5px; font-size: 12px; }
+
+/* ═══ MODAL ═══ */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 580px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+  animation: slideUp .18s ease;
+}
+
+@keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-sub   { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
+
+.modal-close {
+  background: transparent; border: none; color: var(--text2);
+  font-size: 18px; cursor: pointer; padding: 0; line-height: 1;
+}
+
+.modal-close:hover { color: var(--text); }
+
+.modal-body { padding: 20px 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field-group { margin-bottom: 14px; }
+.field-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
+.field-val   { font-size: 13px; color: var(--text); }
+
+.form-select, .form-textarea {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 13px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+
+.form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-select option { background: var(--surface2); }
+.form-textarea { resize: vertical; min-height: 80px; }
+
+/* ═══ TOAST ═══ */
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px;
+  box-shadow: var(--shadow);
+  z-index: 1000;
+  transform: translateY(60px);
+  opacity: 0;
+  transition: all .3s ease;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error   { border-left: 3px solid var(--red); }
+
+/* ═══ MISC ═══ */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-title  { font-size: 15px; font-weight: 700; }
+
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+.mt-4 { margin-top: 16px; }
+.mb-4 { margin-bottom: 16px; }
+.gap-2 { gap: 8px; }
+.flex  { display: flex; align-items: center; }
+
+select option { background: #1d2436; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     LOGIN PAGE
+══════════════════════════════════════════════ -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">ICS REPORTS<span>IM</span></div>
+    <p class="login-sub">Incident Management System · Manolo Fortich</p>
+
+    <!-- Role Tabs -->
+    <div style="display:flex;gap:0;margin-bottom:22px;background:var(--surface2);border-radius:10px;padding:4px;">
+      <button id="tab-admin" onclick="switchTab('admin')"
+        style="flex:1;padding:8px;border:none;border-radius:7px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:var(--accent);color:#fff;">
+        🛡️ Admin
+      </button>
+      <button id="tab-user" onclick="switchTab('user')"
+        style="flex:1;padding:8px;border:none;border-radius:7px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:transparent;color:var(--text2);">
+        👤 User
+      </button>
+    </div>
+
+    <div id="login-error" style="display:none;margin-bottom:16px;padding:10px 14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:var(--red);font-size:13px;"></div>
+
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" class="form-control" id="login-user" placeholder="Enter username" value="admin">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" class="form-control" id="login-pass" placeholder="••••••••" value="admin123">
+    </div>
+    <button class="btn btn-primary btn-full" style="margin-top:4px" onclick="doLogin()">
+      Login →
+    </button>
+
+    <!-- Credentials hint -->
+    <div class="login-hint" id="hint-admin">
+      <div style="margin-bottom:6px;color:var(--text2);font-size:11px;letter-spacing:1px;text-transform:uppercase">Admin Accounts</div>
+      <div style="cursor:pointer;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)" onclick="fillLogin('admin','admin123')">👤 <strong>admin</strong> / admin123 &nbsp;<span style="color:var(--text3);font-size:10px">click to fill</span></div>
+      <div style="cursor:pointer;padding:4px 0" onclick="fillLogin('moderator','mod123')">👤 <strong>moderator</strong> / mod123 &nbsp;<span style="color:var(--text3);font-size:10px">click to fill</span></div>
+    </div>
+    <div class="login-hint" id="hint-user" style="display:none">
+      <div style="margin-bottom:6px;color:var(--text2);font-size:11px;letter-spacing:1px;text-transform:uppercase">User Accounts</div>
+      <div style="cursor:pointer;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)" onclick="fillLogin('jhon_reymer','user123')">👤 <strong>jhon_reymer</strong> / user123 &nbsp;<span style="color:var(--text3);font-size:10px">click to fill</span></div>
+      <div style="cursor:pointer;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)" onclick="fillLogin('reymark_a','user123')">👤 <strong>reymark_a</strong> / user123 &nbsp;<span style="color:var(--text3);font-size:10px">click to fill</span></div>
+      <div style="cursor:pointer;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)" onclick="fillLogin('kien_bok','user123')">👤 <strong>kien_bok</strong> / user123 &nbsp;<span style="color:var(--text3);font-size:10px">click to fill</span></div>
+      <div style="cursor:pointer;padding:4px 0" onclick="fillLogin('weniel_tam','user123')">👤 <strong>weniel_tam</strong> / user123 &nbsp;<span style="color:var(--text3);font-size:10px">⚑ flagged</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      ICS REPORTS<span>IM</span>
+      <small>Mgmt System</small>
+    </div>
+
+    <nav>
+      <div class="nav-section">Main</div>
+      <div class="nav-link active admin-only" data-page="dashboard">
+        <span class="icon">📊</span> Dashboard
+      </div>
+      <div class="nav-link" data-page="incidents">
+        <span class="icon">📋</span> Incidents
+        <span class="nav-badge" id="pending-badge">2</span>
+      </div>
+      <div class="nav-link" data-page="map">
+        <span class="icon">🗺️</span> Map View
+      </div>
+
+      <div class="nav-section">Management</div>
+      <div class="nav-link admin-only" data-page="users">
+        <span class="icon">👥</span> Users
+      </div>
+      <div class="nav-link admin-only" data-page="actions">
+        <span class="icon">🕐</span> Action Log
+      </div>
+
+      <div class="nav-section">Account</div>
+      <div class="nav-link" onclick="doLogout()">
+        <span class="icon">🚪</span> Logout
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="admin-pill">
+        <div class="avatar">A</div>
+        <div class="admin-info">
+          <div class="name">admin</div>
+          <div class="role">System Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2 id="page-title">Dashboard</h2>
+        <p id="page-sub">Overview of incident management</p>
+      </div>
+      <div class="topbar-right">
+        <input class="search-input" type="text" placeholder="🔍 Search incidents..." oninput="liveSearch(this.value)">
+        <button class="btn btn-orange btn-sm" onclick="openModal('create-modal')">+ New Report</button>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-label">Total</div>
+            <div class="stat-value" style="color:var(--accent)" id="stat-total">5</div>
+            <div class="stat-sub">All incidents</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-label">Pending</div>
+            <div class="stat-value" style="color:var(--orange)" id="stat-pending">2</div>
+            <div class="stat-sub">Need action</div>
+          </div>
+          <div class="stat-card cyan">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value" style="color:var(--cyan)" id="stat-progress">1</div>
+            <div class="stat-sub">Being handled</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-label">Resolved</div>
+            <div class="stat-value" style="color:var(--green)" id="stat-resolved">1</div>
+            <div class="stat-sub">Closed</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label">Critical</div>
+            <div class="stat-value" style="color:var(--red)" id="stat-critical">1</div>
+            <div class="stat-sub">Urgent</div>
+          </div>
+          <div class="stat-card gray">
+            <div class="stat-label">Flagged</div>
+            <div class="stat-value" style="color:var(--text2)" id="stat-flagged">1</div>
+            <div class="stat-sub">Users</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Incidents</span>
+            <button class="btn btn-ghost btn-sm" onclick="navTo('incidents')">View All →</button>
+          </div>
+          <div class="table-wrap">
+            <table id="dashboard-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Reporter</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /dashboard -->
+
+      <!-- ── INCIDENTS ── -->
+      <div class="page" id="page-incidents">
+
+        <div class="card">
+          <div class="filter-bar">
+            <button class="filter-pill all active" onclick="filterIncidents('all', this)">All</button>
+            <button class="filter-pill" onclick="filterIncidents('Pending', this)">Pending</button>
+            <button class="filter-pill" onclick="filterIncidents('Verified', this)">Verified</button>
+            <button class="filter-pill" onclick="filterIncidents('In Progress', this)">In Progress</button>
+            <button class="filter-pill" onclick="filterIncidents('Resolved', this)">Resolved</button>
+            <div class="filter-sep"></div>
+            <select class="filter-input" onchange="filterPriority(this.value)" style="width:130px">
+              <option value="">All Priorities</option>
+              <option>Critical</option>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+            <button class="btn btn-orange btn-sm" onclick="openModal('create-modal')">+ New Report</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Location</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Reporter</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="incidents-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /incidents -->
+
+      <!-- ── MAP ── -->
+      <div class="page" id="page-map">
+        <div class="map-layout">
+          <div class="map-canvas" id="map-canvas">
+            <div class="map-grid-bg"></div>
+            <div class="map-title">📍 Manolo Fortich, Bukidnon</div>
+            <!-- Pins injected by JS -->
+            <div class="map-legend">
+              <div class="legend-row"><div class="legend-dot" style="background:var(--red)"></div> Critical</div>
+              <div class="legend-row"><div class="legend-dot" style="background:var(--orange)"></div> High</div>
+              <div class="legend-row"><div class="legend-dot" style="background:var(--accent)"></div> Medium</div>
+              <div class="legend-row"><div class="legend-dot" style="background:var(--text3)"></div> Low</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Incidents</span></div>
+              <div id="map-list" style="padding:8px"></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /map -->
+
+      <!-- ── USERS ── -->
+      <div class="page" id="page-users">
+
+        <div class="section-header mb-4">
+          <div class="section-title">Registered Users</div>
+          <span style="font-size:12px;color:var(--text2)">4 users · 1 flagged</span>
+        </div>
+
+        <div class="user-grid" id="user-grid"></div>
+
+        <div class="section-header mt-4 mb-4" style="margin-top:24px">
+          <div class="section-title">Administrators</div>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Created</th></tr>
+              </thead>
+              <tbody id="admins-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /users -->
+
+      <!-- ── ACTIONS ── -->
+      <div class="page" id="page-actions">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Admin Action Log</span>
+            <span style="font-size:12px;color:var(--text2)" id="action-count"></span>
+          </div>
+          <div class="timeline" id="timeline"></div>
+        </div>
+      </div><!-- /actions -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════ -->
+
+<!-- VIEW INCIDENT -->
+<div class="overlay" id="view-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="vm-title">Incident Title</div>
+        <div class="modal-sub" id="vm-sub">Incident #001</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('view-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field-group">
+          <div class="field-label">Status</div>
+          <div id="vm-status"></div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Priority</div>
+          <div id="vm-priority"></div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Description</div>
+        <div class="field-val" id="vm-desc"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="field-label">Location</div>
+          <div class="field-val" id="vm-location"></div>
+          <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px" id="vm-coords"></div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Reporter</div>
+          <div class="field-val" id="vm-reporter"></div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Category</div>
+        <div class="field-val" id="vm-category"></div>
+      </div>
+      <div class="field-group" id="vm-notes-group">
+        <div class="field-label">Admin Notes</div>
+        <div class="field-val" id="vm-notes" style="background:var(--surface2);padding:10px 12px;border-radius:8px;font-size:13px"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('view-modal')">Close</button>
+      <button class="btn btn-primary" id="vm-edit-btn">Edit Incident</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT INCIDENT -->
+<div class="overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="em-title">Edit Incident</div>
+        <div class="modal-sub" id="em-sub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('edit-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <div class="field-label">Title</div>
+        <input class="form-control" id="em-title-input">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="field-label">Status</div>
+          <select class="form-select" id="em-status">
+            <option>Pending</option><option>Verified</option>
+            <option>In Progress</option><option>Resolved</option><option>False Report</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Priority</div>
+          <select class="form-select" id="em-priority">
+            <option>Low</option><option>Medium</option><option>High</option><option>Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Admin Notes</div>
+        <textarea class="form-textarea" id="em-notes"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('edit-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE INCIDENT -->
+<div class="overlay" id="create-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">New Incident Report</div>
+        <div class="modal-sub">Fill in all required fields</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('create-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <div class="field-label">Title *</div>
+        <input class="form-control" id="cm-title" placeholder="Brief incident title">
+      </div>
+      <div class="field-group">
+        <div class="field-label">Description *</div>
+        <textarea class="form-textarea" id="cm-desc" placeholder="Describe the incident in detail..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="field-label">Category</div>
+          <select class="form-select" id="cm-category">
+            <option>Infrastructure</option><option>Road Maintenance</option>
+            <option>Utilities</option><option>Vandalism</option><option>Emergency</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Priority</div>
+          <select class="form-select" id="cm-priority">
+            <option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Location Address</div>
+        <input class="form-control" id="cm-location" placeholder="Barangay, Municipality, Province">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <div class="field-label">Latitude</div>
+          <input class="form-control" id="cm-lat" placeholder="8.3900">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Longitude</div>
+          <input class="form-control" id="cm-lon" placeholder="124.8300">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('create-modal')">Cancel</button>
+      <button class="btn btn-orange" onclick="createIncident()">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="overlay" id="delete-modal">
+  <div class="modal" style="width:400px">
+    <div class="modal-header">
+      <div class="modal-title">Confirm Delete</div>
+      <button class="modal-close" onclick="closeModal('delete-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text2);font-size:14px">Are you sure you want to delete incident <strong id="del-title"></strong>? This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toast-icon"></span>
+  <span id="toast-msg"></span>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script>
+// ── DATA ───────────────────────────────────────────────────────────────────
+let incidents = [
+  { id:1, title:'Broken Streetlight', description:'Streetlight not working at night, creating safety hazard for pedestrians and motorists.', latitude:8.39, longitude:124.83, location_address:'Barangay Alae, Manolo Fortich, Bukidnon', status:'Verified', priority:'High', category:'Infrastructure', username:'jhon_reymer', admin_notes:'Confirmed by barangay inspection. Repair scheduled.', reported_at:'2025-01-15' },
+  { id:2, title:'Pothole on Highway', description:'Large pothole causing vehicle damage on main road near Sayre Highway.', latitude:8.38, longitude:124.83, location_address:'Sayre Highway, Barangay Diclum, Manolo Fortich, Bukidnon', status:'In Progress', priority:'Critical', category:'Road Maintenance', username:'reymark_a', admin_notes:'Repair crew dispatched.', reported_at:'2025-01-16' },
+  { id:3, title:'Graffiti on Building', description:'Vandalism reported on barangay hall building. Spray paint on front wall.', latitude:8.37, longitude:124.95, location_address:'Barangay Maluko, Manolo Fortich, Bukidnon', status:'Pending', priority:'Low', category:'Vandalism', username:'jhon_reymer', admin_notes:'', reported_at:'2025-01-17' },
+  { id:4, title:'Water Leak', description:'Fire hydrant leaking water continuously. Wasting municipal water supply.', latitude:8.36, longitude:124.80, location_address:'Barangay Santiago, Manolo Fortich, Bukidnon', status:'Resolved', priority:'Medium', category:'Utilities', username:'kien_bok', admin_notes:'Hydrant repaired successfully.', reported_at:'2025-01-18' },
+  { id:5, title:'Fallen Tree', description:'Tree blocking sidewalk after storm. Pedestrians forced onto road.', latitude:8.35, longitude:124.82, location_address:'Barangay Diclum, Manolo Fortich, Bukidnon', status:'Pending', priority:'High', category:'Emergency', username:'reymark_a', admin_notes:'', reported_at:'2025-01-19' },
+];
+
+const users = [
+  { id:1, username:'jhon_reymer', email:'jhonEER@eincimgmt.com', ip_address:'192.168.1.100', false_report_count:0, is_flagged:false, created_at:'2025-01-01', last_login:'2025-01-20', color:'#3b82f6' },
+  { id:2, username:'reymark_a',   email:'emartko123xx@eincimgmt.com', ip_address:'192.168.1.101', false_report_count:0, is_flagged:false, created_at:'2025-01-01', last_login:'2025-01-21', color:'#22c55e' },
+  { id:3, username:'kien_bok',    email:'kienbok@eincimgmt.com', ip_address:'192.168.1.101', false_report_count:0, is_flagged:false, created_at:'2025-01-02', last_login:'2025-01-19', color:'#06b6d4' },
+  { id:4, username:'weniel_tam',  email:'wenieltam@eincimgmt.com', ip_address:'192.168.1.102', false_report_count:2, is_flagged:true, created_at:'2025-01-03', last_login:'2025-01-15', color:'#ef4444' },
+];
+
+const admins = [
+  { id:1, username:'admin',     full_name:'System Administrator', email:'admin@eincimgmt.com',        role:'admin',     created_at:'2025-01-01' },
+  { id:2, username:'moderator', full_name:'Moderator User',        email:'mod_kolotos@eincimgmt.com', role:'moderator', created_at:'2025-01-01' },
+];
+
+let actionLog = [
+  { id:1, incident_id:1, admin:'admin', type:'Status Change',   old_val:'Pending',    new_val:'Verified',    notes:'Confirmed by barangay inspection', ts:'2025-01-20 09:30' },
+  { id:2, incident_id:1, admin:'admin', type:'Priority Change', old_val:'Medium',     new_val:'High',        notes:'Safety concern for pedestrians',   ts:'2025-01-20 09:32' },
+  { id:3, incident_id:2, admin:'admin', type:'Status Change',   old_val:'Pending',    new_val:'In Progress', notes:'Repair crew dispatched',            ts:'2025-01-21 10:00' },
+  { id:4, incident_id:4, admin:'admin', type:'Status Change',   old_val:'In Progress','new_val':'Resolved',  notes:'Hydrant repaired successfully',      ts:'2025-01-22 14:45' },
+];
+
+let currentEditId  = null;
+let currentDeleteId = null;
+let activeFilter   = 'all';
+let priorityFilter = '';
+
+// ── ACCOUNTS ───────────────────────────────────────────────────────────────
+const adminAccounts = [
+  { username:'admin',     password:'admin123', role:'admin',     full_name:'System Administrator' },
+  { username:'moderator', password:'mod123',   role:'moderator', full_name:'Moderator User' },
+];
+
+const userAccounts = [
+  { username:'jhon_reymer', password:'user123', role:'user', is_flagged:false },
+  { username:'reymark_a',   password:'user123', role:'user', is_flagged:false },
+  { username:'kien_bok',    password:'user123', role:'user', is_flagged:false },
+  { username:'weniel_tam',  password:'user123', role:'user', is_flagged:true  },
+];
+
+let currentUser = null; // holds logged-in account info
+
+// ── LOGIN TAB SWITCH ────────────────────────────────────────────────────────
+function switchTab(tab) {
+  const isAdmin = tab === 'admin';
+  document.getElementById('tab-admin').style.background = isAdmin ? 'var(--accent)' : 'transparent';
+  document.getElementById('tab-admin').style.color      = isAdmin ? '#fff' : 'var(--text2)';
+  document.getElementById('tab-user').style.background  = !isAdmin ? 'var(--accent)' : 'transparent';
+  document.getElementById('tab-user').style.color       = !isAdmin ? '#fff' : 'var(--text2)';
+  document.getElementById('hint-admin').style.display   = isAdmin ? 'block' : 'none';
+  document.getElementById('hint-user').style.display    = !isAdmin ? 'block' : 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+function fillLogin(u, p) {
+  document.getElementById('login-user').value = u;
+  document.getElementById('login-pass').value = p;
+}
+
+// ── LOGIN ───────────────────────────────────────────────────────────────────
+function doLogin() {
+  const u   = document.getElementById('login-user').value.trim();
+  const p   = document.getElementById('login-pass').value.trim();
+  const err = document.getElementById('login-error');
+
+  // Check admins first
+  const admin = adminAccounts.find(a => a.username === u && a.password === p);
+  if (admin) {
+    currentUser = { ...admin };
+    launchApp('admin');
+    return;
+  }
+
+  // Check users
+  const user = userAccounts.find(a => a.username === u && a.password === p);
+  if (user) {
+    if (user.is_flagged) {
+      err.style.display = 'block';
+      err.textContent   = '⚑ Your account has been flagged and suspended. Contact the administrator.';
+      return;
+    }
+    currentUser = { ...user };
+    launchApp('user');
+    return;
+  }
+
+  err.style.display = 'block';
+  err.textContent   = 'Invalid username or password.';
+}
+
+function launchApp(role) {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+
+  // Update sidebar avatar info
+  document.querySelector('.admin-info .name').textContent = currentUser.username;
+  document.querySelector('.admin-info .role').textContent = currentUser.role;
+
+  // Show/hide admin-only nav items
+  const adminOnly = document.querySelectorAll('.admin-only');
+  adminOnly.forEach(el => el.style.display = role === 'admin' ? '' : 'none');
+
+  // If user role — go to report page, not dashboard
+  if (role === 'user') {
+    renderUserApp();
+  } else {
+    renderAll();
+    navTo('dashboard');
+  }
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('login-error').style.display = 'none';
+  // Reset tab to admin
+  switchTab('admin');
+  fillLogin('admin','admin123');
+}
+
+// ── USER PORTAL (limited view) ──────────────────────────────────────────────
+function renderUserApp() {
+  // Users only see their own incidents + can create new ones
+  navTo('incidents');
+  // Filter to only show their reports
+  const myIncidents = incidents.filter(i => i.username === currentUser.username);
+
+  // Update topbar
+  document.getElementById('page-title').textContent = `Welcome, ${currentUser.username}`;
+  document.getElementById('page-sub').textContent   = 'Your submitted incident reports';
+
+  renderIncidents(myIncidents);
+  renderMap();
+  updateStats();
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+const pageMeta = {
+  dashboard: ['Dashboard',  'Overview of incident management system'],
+  incidents: ['Incidents',  'View and manage all reported incidents'],
+  map:       ['Map View',   'Geographic overview — Manolo Fortich, Bukidnon'],
+  users:     ['Users',      'Registered users and administrators'],
+  actions:   ['Action Log', 'History of all admin actions'],
+};
+
+document.querySelectorAll('.nav-link[data-page]').forEach(el => {
+  el.addEventListener('click', () => navTo(el.dataset.page));
+});
+
+function navTo(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelector(`.nav-link[data-page="${name}"]`).classList.add('active');
+
+  const [title, sub] = pageMeta[name];
+  document.getElementById('page-title').textContent = title;
+  document.getElementById('page-sub').textContent   = sub;
+}
+
+// ── RENDER HELPERS ─────────────────────────────────────────────────────────
+function statusBadge(s) {
+  const map = { 'Pending':'badge-pending', 'Verified':'badge-verified', 'In Progress':'badge-inprogress', 'Resolved':'badge-resolved', 'False Report':'badge-false' };
+  return `<span class="badge ${map[s]||'badge-pending'}"><span class="dot"></span>${s}</span>`;
+}
+
+function priorityBadge(p) {
+  const map = { 'Critical':'badge-critical', 'High':'badge-high', 'Medium':'badge-medium', 'Low':'badge-low' };
+  return `<span class="badge ${map[p]||'badge-medium'}">${p}</span>`;
+}
+
+function incidentRow(r, compact=false) {
+  const locCell = compact ? '' : `<td class="td-muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.location_address}</td>`;
+  const repCol  = compact ? '' : `<td class="td-muted">${r.username||'Anon'}</td>`;
+  return `
+    <tr onclick="viewIncident(${r.id})">
+      <td class="td-id">#${String(r.id).padStart(3,'0')}</td>
+      <td><div class="td-title">${r.title}</div>${compact?'':'<div class="td-sub">'+r.category+'</div>'}</td>
+      ${compact?`<td class="td-muted">${r.category}</td>`:''}
+      ${locCell}
+      <td>${priorityBadge(r.priority)}</td>
+      <td>${statusBadge(r.status)}</td>
+      ${repCol}
+      <td class="td-muted">${r.reported_at}</td>
+      <td onclick="event.stopPropagation()">
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-ghost btn-sm" onclick="viewIncident(${r.id})">View</button>
+          <button class="btn btn-ghost btn-sm" onclick="editIncident(${r.id})">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="openDelete(${r.id})">Del</button>
+        </div>
+      </td>
+    </tr>`;
+}
+
+function renderAll() {
+  renderDashboard();
+  renderIncidents();
+  renderMap();
+  renderUsers();
+  renderActions();
+  updateStats();
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────────────────────
+function renderDashboard() {
+  document.getElementById('dashboard-tbody').innerHTML =
+    incidents.map(r => incidentRow(r, true)).join('');
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent    = incidents.length;
+  document.getElementById('stat-pending').textContent  = incidents.filter(i=>i.status==='Pending').length;
+  document.getElementById('stat-progress').textContent = incidents.filter(i=>i.status==='In Progress').length;
+  document.getElementById('stat-resolved').textContent = incidents.filter(i=>i.status==='Resolved').length;
+  document.getElementById('stat-critical').textContent = incidents.filter(i=>i.priority==='Critical').length;
+  document.getElementById('stat-flagged').textContent  = users.filter(u=>u.is_flagged).length;
+  document.getElementById('pending-badge').textContent = incidents.filter(i=>i.status==='Pending').length;
+}
+
+// ── INCIDENTS ──────────────────────────────────────────────────────────────
+function renderIncidents(list) {
+  const data = list || getFilteredIncidents();
+  document.getElementById('incidents-tbody').innerHTML =
+    data.length
+      ? data.map(r => incidentRow(r)).join('')
+      : '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text3)">No incidents found.</td></tr>';
+}
+
+function getFilteredIncidents() {
+  return incidents.filter(i => {
+    const statusOk   = activeFilter === 'all' || i.status === activeFilter;
+    const priorityOk = !priorityFilter || i.priority === priorityFilter;
+    return statusOk && priorityOk;
+  });
+}
+
+function filterIncidents(val, btn) {
+  activeFilter = val;
+  document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderIncidents();
+}
+
+function filterPriority(val) {
+  priorityFilter = val;
+  renderIncidents();
+}
+
+function liveSearch(q) {
+  if (!q.trim()) { renderIncidents(); return; }
+  const lower = q.toLowerCase();
+  renderIncidents(incidents.filter(i =>
+    i.title.toLowerCase().includes(lower) ||
+    (i.location_address||'').toLowerCase().includes(lower) ||
+    i.category.toLowerCase().includes(lower)
+  ));
+}
+
+// ── MAP ────────────────────────────────────────────────────────────────────
+function renderMap() {
+  const canvas = document.getElementById('map-canvas');
+  // Remove old pins
+  canvas.querySelectorAll('.map-pin').forEach(p => p.remove());
+
+  // Map bounds: lat 8.34–8.40, lon 124.79–124.96
+  const latMin=8.34, latMax=8.40, lonMin=124.79, lonMax=124.96;
+
+  incidents.forEach(r => {
+    const px = ((r.longitude - lonMin) / (lonMax - lonMin)) * 85 + 7;
+    const py = ((latMax - r.latitude)  / (latMax - latMin)) * 80 + 8;
+    const cls = r.priority.toLowerCase();
+
+    const pin = document.createElement('div');
+    pin.className = 'map-pin';
+    pin.style.cssText = `left:${px}%;top:${py}%`;
+    pin.innerHTML = `
+      <div class="pin-circle ${cls}"></div>
+      <div class="pin-tooltip">
+        <strong>#${r.id} ${r.title}</strong><br>
+        ${r.status} · ${r.priority}
+      </div>`;
+    pin.onclick = () => viewIncident(r.id);
+    canvas.appendChild(pin);
+  });
+
+  // Map list
+  document.getElementById('map-list').innerHTML = incidents.map(r => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .12s"
+         onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''"
+         onclick="viewIncident(${r.id})">
+      <div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;background:${r.priority==='Critical'?'var(--red)':r.priority==='High'?'var(--orange)':r.priority==='Medium'?'var(--accent)':'var(--text3)'}"></div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600">${r.title}</div>
+        <div style="font-size:11px;color:var(--text3)">${(r.location_address||'').split(',')[0]}</div>
+      </div>
+      ${statusBadge(r.status).replace('class="badge','style="font-size:10px" class="badge')}
+    </div>`).join('');
+}
+
+// ── USERS ──────────────────────────────────────────────────────────────────
+function renderUsers() {
+  document.getElementById('user-grid').innerHTML = users.map(u => {
+    const reportCount = incidents.filter(i => i.username === u.username).length;
+    return `
+      <div class="user-card ${u.is_flagged?'flagged':''}">
+        <div class="user-card-head">
+          <div class="user-avatar" style="background:${u.color}">${u.username[0].toUpperCase()}</div>
+          <div>
+            <div class="user-name">${u.username}${u.is_flagged?'<span class="flagged-tag">⚑ Flagged</span>':''}</div>
+            <div class="user-email">${u.email}</div>
+          </div>
+        </div>
+        <div class="user-row"><span class="lbl">IP Address</span><span class="val">${u.ip_address}</span></div>
+        <div class="user-row"><span class="lbl">False Reports</span><span class="val" style="color:${u.false_report_count>0?'var(--red)':'inherit'}">${u.false_report_count}</span></div>
+        <div class="user-row"><span class="lbl">Total Reports</span><span class="val">${reportCount}</span></div>
+        <div class="user-row"><span class="lbl">Status</span><span class="val" style="color:${u.is_flagged?'var(--red)':'var(--green)'}">${u.is_flagged?'Flagged':'Active'}</span></div>
+        <div class="user-row"><span class="lbl">Last Login</span><span class="val">${u.last_login}</span></div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('admins-tbody').innerHTML = admins.map(a => `
+    <tr>
+      <td class="td-id">#${String(a.id).padStart(2,'0')}</td>
+      <td class="td-title">${a.username}</td>
+      <td class="td-muted">${a.full_name}</td>
+      <td class="td-muted">${a.email}</td>
+      <td><span class="badge ${a.role==='admin'?'badge-high':'badge-medium'}">${a.role}</span></td>
+      <td class="td-muted">${a.created_at}</td>
+    </tr>`).join('');
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────────────
+function renderActions() {
+  const icons = {
+    'Status Change':   ['🔄','status'],
+    'Priority Change': ['⚡','priority'],
+    'Note Added':      ['📝','note'],
+    'Verified':        ['✅','verified'],
+    'Marked False':    ['❌','false'],
+  };
+
+  document.getElementById('action-count').textContent = `${actionLog.length} actions`;
+  document.getElementById('timeline').innerHTML = actionLog.map(a => {
+    const inc = incidents.find(i => i.id === a.incident_id);
+    const [icon, cls] = icons[a.type] || ['•','note'];
+    return `
+      <div class="tl-item">
+        <div class="tl-icon ${cls}">${icon}</div>
+        <div class="tl-body">
+          <div class="tl-action">
+            <strong>${a.admin}</strong> · ${a.type}
+            ${a.old_val ? `<span style="color:var(--red);margin-left:8px">${a.old_val}</span><span class="arrow">→</span><span style="color:var(--green)">${a.new_val}</span>` : ''}
+          </div>
+          <div class="tl-meta">
+            ${inc?`Incident #${a.incident_id} — ${inc.title}`:'Unknown'} · ${a.ts}
+          </div>
+          ${a.notes ? `<div class="tl-note">"${a.notes}"</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── VIEW INCIDENT ──────────────────────────────────────────────────────────
+function viewIncident(id) {
+  const r = incidents.find(i => i.id === id);
+  if (!r) return;
+
+  document.getElementById('vm-title').textContent    = r.title;
+  document.getElementById('vm-sub').textContent      = `Incident #${String(id).padStart(3,'0')} · ${r.category}`;
+  document.getElementById('vm-status').innerHTML     = statusBadge(r.status);
+  document.getElementById('vm-priority').innerHTML   = priorityBadge(r.priority);
+  document.getElementById('vm-desc').textContent     = r.description;
+  document.getElementById('vm-location').textContent = r.location_address;
+  document.getElementById('vm-coords').textContent   = `${r.latitude}°N, ${r.longitude}°E`;
+  document.getElementById('vm-reporter').textContent = r.username || 'Anonymous';
+  document.getElementById('vm-category').textContent = r.category;
+
+  const notesGrp = document.getElementById('vm-notes-group');
+  if (r.admin_notes) {
+    notesGrp.style.display = 'block';
+    document.getElementById('vm-notes').textContent = r.admin_notes;
+  } else {
+    notesGrp.style.display = 'none';
+  }
+
+  document.getElementById('vm-edit-btn').onclick = () => { closeModal('view-modal'); editIncident(id); };
+  openModal('view-modal');
+}
+
+// ── EDIT INCIDENT ──────────────────────────────────────────────────────────
+function editIncident(id) {
+  const r = incidents.find(i => i.id === id);
+  if (!r) return;
+  currentEditId = id;
+
+  document.getElementById('em-title').textContent    = `Edit Incident #${String(id).padStart(3,'0')}`;
+  document.getElementById('em-sub').textContent      = r.title;
+  document.getElementById('em-title-input').value    = r.title;
+  document.getElementById('em-notes').value          = r.admin_notes || '';
+
+  const statusSel = document.getElementById('em-status');
+  const priSel    = document.getElementById('em-priority');
+  [...statusSel.options].forEach(o => o.selected = o.value === r.status);
+  [...priSel.options].forEach(o => o.selected    = o.value === r.priority);
+
+  openModal('edit-modal');
+}
+
+function saveEdit() {
+  const r = incidents.find(i => i.id === currentEditId);
+  if (!r) return;
+
+  const newStatus   = document.getElementById('em-status').value;
+  const newPriority = document.getElementById('em-priority').value;
+  const newNotes    = document.getElementById('em-notes').value;
+  const newTitle    = document.getElementById('em-title-input').value.trim();
+
+  if (!newTitle) { showToast('Title cannot be empty.', 'error'); return; }
+
+  // Log changes
+  if (newStatus !== r.status) {
+    actionLog.unshift({ id: actionLog.length+1, incident_id: r.id, admin:'admin', type:'Status Change', old_val: r.status, new_val: newStatus, notes: newNotes, ts: new Date().toLocaleString() });
+  }
+  if (newPriority !== r.priority) {
+    actionLog.unshift({ id: actionLog.length+1, incident_id: r.id, admin:'admin', type:'Priority Change', old_val: r.priority, new_val: newPriority, notes:'', ts: new Date().toLocaleString() });
+  }
+
+  r.title       = newTitle;
+  r.status      = newStatus;
+  r.priority    = newPriority;
+  r.admin_notes = newNotes;
+
+  closeModal('edit-modal');
+  renderAll();
+  showToast('Incident updated successfully!', 'success');
+}
+
+// ── CREATE INCIDENT ────────────────────────────────────────────────────────
+function createIncident() {
+  const title = document.getElementById('cm-title').value.trim();
+  const desc  = document.getElementById('cm-desc').value.trim();
+
+  if (!title || !desc) { showToast('Title and description are required.', 'error'); return; }
+
+  const newId = Math.max(...incidents.map(i=>i.id)) + 1;
+  incidents.unshift({
+    id:              newId,
+    title:           title,
+    description:     desc,
+    latitude:        parseFloat(document.getElementById('cm-lat').value) || 8.38,
+    longitude:       parseFloat(document.getElementById('cm-lon').value) || 124.83,
+    location_address: document.getElementById('cm-location').value || 'Manolo Fortich, Bukidnon',
+    status:          'Pending',
+    priority:        document.getElementById('cm-priority').value,
+    category:        document.getElementById('cm-category').value,
+    username:        'admin',
+    admin_notes:     '',
+    reported_at:     new Date().toISOString().split('T')[0],
+  });
+
+  actionLog.unshift({ id: actionLog.length+1, incident_id: newId, admin:'admin', type:'Status Change', old_val:'', new_val:'Pending', notes:'Incident created', ts: new Date().toLocaleString() });
+
+  // Reset form
+  ['cm-title','cm-desc','cm-location','cm-lat','cm-lon'].forEach(id => document.getElementById(id).value = '');
+
+  closeModal('create-modal');
+  renderAll();
+  showToast('Incident report created!', 'success');
+}
+
+// ── DELETE ─────────────────────────────────────────────────────────────────
+function openDelete(id) {
+  currentDeleteId = id;
+  const r = incidents.find(i => i.id === id);
+  document.getElementById('del-title').textContent = r ? `"${r.title}"` : '';
+  openModal('delete-modal');
+}
+
+function confirmDelete() {
+  incidents = incidents.filter(i => i.id !== currentDeleteId);
+  closeModal('delete-modal');
+  renderAll();
+  showToast('Incident deleted.', 'success');
+}
+
+// ── MODALS ─────────────────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
+});
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function showToast(msg, type='success') {
+  const t   = document.getElementById('toast');
+  const ico = document.getElementById('toast-icon');
+  const m   = document.getElementById('toast-msg');
+
+  ico.textContent = type === 'success' ? '✅' : '❌';
+  m.textContent   = msg;
+  t.className     = `toast ${type} show`;
+
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── KEYBOARD ──────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-page').style.display !== 'none') doLogin();
+});
+</script>
+</body>
+</html>
